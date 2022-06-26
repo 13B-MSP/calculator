@@ -13,7 +13,7 @@ _OPERANDS = {
 _NUMBERS = "0123456789"
 _VALID_CHARS = f"{_OPERANDS}{_NUMBERS}. "
 
-CalcSequence = Sequence[Union[str, int]]
+CalcSequence = Sequence[Union[str, float]]
 
 def _create_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
