@@ -27,36 +27,30 @@ def _output_printer(expr: str, output: float) -> None:
 
 def _parse_expr(expr: str) -> CalcSequence:
     """Parse calculator expression"""
-    num = ""
-    seen_dot = False
-    seq: CalcSequence = []
+    number = ""
+    multiplier = 1
+    sequence: CalcSequence = []
     for c in expr:
         if c in _NUMBERS:
-            num += c
-        elif c == ' ':
-            if num:
-                seq.append(float(num))
-                num = ""
-                seen_dot = False
-        elif c == '.':
-            if seen_dot:
-                raise ValueError(f"Incorrect nr in expr '{expr}'")
-            num += c
-            seen_dot = True
+            number += c
         elif c in _OPERANDS:
-            if num:
-                seq.append(float(num))
-                num = ""
-                seen_dot = False
-            if (not seq and not num) or (seq and seq[-1] in _OPERANDS):
-                raise ValueError("Not allowed: ", seq, expr, c)
-            seq.append(c)
-    if num:
-        seq.append(float(num))
-    return seq
+            if c == '-' and not number:
+                multiplier *= -1
+            elif number:
+                sequence.extend([multiplier * float(number), c])
+                number = ""
+            else:
+                raise ValueError(f"incorrect expression {expr}")
+        elif c in ',.':
+            if '.' in number:
+                raise ValueError(f"incorrect expression {expr}")
+            number += '.'
+    if number:
+        sequence.append(multiplier * float(number))
+    return sequence
 
 def _resolve_calc_sequence(seq: CalcSequence) -> float:
-    """Resolved the calc sequence to an int"""
+    """Resolved the calc sequence to float"""
     total = 0.0
     fu: Callable[[float], float] = lambda n: n
     for ent in seq:
