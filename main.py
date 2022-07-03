@@ -1,13 +1,13 @@
 import argparse
 from functools import partial
 import operator
-from typing import Callable, Sequence, Union
+from typing import Callable, NoReturn, Sequence, Union
 
 _OPERANDS = {
     "+": operator.add,
-    "-": operator.sub
-    # "/": operator.truediv,
-    # "*": operator.mul
+    "-": operator.sub,
+    "/": operator.truediv,
+    "*": operator.mul
 }
 
 _NUMBERS = "0123456789"
@@ -25,6 +25,10 @@ def _output_printer(expr: str, output: float) -> None:
     """Prints formatted ouput of expression"""
     print(f"{expr} = {output}")
 
+def _raise_not_valid_error(expr: str) -> NoReturn:
+    """Raises a formatted ValueError for invalid expression"""
+    raise ValueError(f"'{expr}' not a valid calculator expression")
+
 def _parse_expr(expr: str) -> CalcSequence:
     """Parse calculator expression"""
     number = ""
@@ -40,17 +44,17 @@ def _parse_expr(expr: str) -> CalcSequence:
                 sequence.extend([multiplier * float(number), c])
                 number = ""
             else:
-                raise ValueError(f"incorrect expression {expr}")
+                _raise_not_valid_error(expr)
         elif c in ',.':
             if '.' in number:
-                raise ValueError(f"incorrect expression {expr}")
+                _raise_not_valid_error(expr)
             number += '.'
     if number:
         sequence.append(multiplier * float(number))
     return sequence
 
 def _resolve_calc_sequence(seq: CalcSequence) -> float:
-    """Resolved the calc sequence to float"""
+    """Resolve the calc sequence to float"""
     total = 0.0
     fu: Callable[[float], float] = lambda n: n
     for ent in seq:
@@ -67,7 +71,7 @@ def _calculate(expr: str) -> float:
     
     Raise ValueError if expr not valid"""
     if not all(c in _VALID_CHARS for c in expr):
-        raise ValueError(f"'{expr}' not a valid calculator expression")
+        _raise_not_valid_error(expr)
     calc_sequence = _parse_expr(expr)
     return _resolve_calc_sequence(calc_sequence)
 
